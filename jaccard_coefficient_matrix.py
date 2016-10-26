@@ -22,6 +22,6 @@ def calculate_jaccard():
 	
 	labeled_sim_matrix = pd.DataFrame(similarity_matrix, index = samples, columns = samples)
 		
-	labeled_sim_matrix.to_csv('/home/tonya/Desktop/jaccard_similarity_score_ATAC_seq_data.csv', doublequote=False)
+	labeled_sim_matrix.to_csv('/home/tonya/Desktop/jaccard_similarity_score_ATAC_seq_data_89.csv', doublequote=False)
 if __name__ == '__main__':
 	calculate_jaccard();

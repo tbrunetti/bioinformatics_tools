@@ -97,6 +97,7 @@ def duplicate_snps(plink, dup_file, reference, out):
 
 
 def generate_duplicate_files(merge_bim, out):
+	original_snp_names_to_duplicate = open(os.path.join(out, 'original_snp_names_to_duplicate.txt'), 'w')
 	duplicate_file = open(os.path.join(out, 'snps_to_duplicate_formatted.txt'), 'w')
 	merged_bim_files = pandas.read_table(merge_bim, dtype=str)
 	duplicate_snps = []
@@ -108,6 +109,8 @@ def generate_duplicate_files(merge_bim, out):
 		subset_dataframe = merged_bim_files.loc[merged_bim_files['SNP_name_to_update'] == str(dup), ['chrm', 'pos', 'ref_SNP_name']]
 		for repeat in range(len(list(subset_dataframe['ref_SNP_name']))):
 			duplicate_file.write(str(list(subset_dataframe['chrm'])[0]) + '\t' + str(list(subset_dataframe['pos'])[0]) + '\t' + ','.join(list(subset_dataframe['ref_SNP_name'])) + '\n')
+	original_snp_names_to_duplicate.write('\n'.join(duplicate_snps))
+	original_snp_names_to_duplicate.close()
 	duplicate_file.flush()
 	duplicate_file.close()
 

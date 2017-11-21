@@ -68,7 +68,7 @@ def main():
 	if args.filter == True:
 		pre_qc_imputation_filtering(bimFile = args.bim, plink=args.plink_exe, vcftools=args.vcf_exe, bgzip=args.bgzip_exe)
 	if args.postQC == True:
-		pre_imputation_filtering_post_QC(bimFile = args.bim, plink=args.plink_exe, vcftools=args.vcf_exe, bgzip=args.bgzip_exe, flips=args.flips, removeSnps=args.removea)		
+		pre_imputation_filtering_post_QC(bimFile = args.bim, plink=args.plink_exe, vcftools=args.vcf_exe, bgzip=args.bgzip_exe, flips=args.flips, removeSnps=args.remove)		
 
 
 if __name__ == '__main__':

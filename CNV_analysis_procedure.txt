@@ -1,0 +1,60 @@
+Rough CNV analysis of tumor vs normal capture genes
+
+
+
+1.  Get total raw read counts of all capture regions in both the tumor and normal samples.
+
+2.  Merge together counts that are mapped to the same gene.  For example, since the capture method is not whole genome, there may be gaps/regions that all belong to the same gene because exon 1 is one region and exon 2 is another, but both exons may map to the same gene.  Therefore, each gene name should only every appear once, after the counts are merged.
+
+3.  For both tumor and normal samples, separate the tier 1 and tier 2 genes.  The normalization will be treated separately.  Here is a very simplistic example of what a potential tier 1 file may look like:
+
+Chromosome | Gene Name |  Tier 1 Normal  |   Tier 1 Tumor
+	   |           | raw read counts |  raw read counts
+------------------------------------------------------------
+     17	   |    TP53   |       150  	 |   50
+     12	   |	KRAS   |	50	 |   50
+
+-------------------------------------------------------------
+  Total		                200          100
+
+4.  Normalize the reads based on total number of reads.  From the example above, you can see the normal has 200 raw reads while the tumor as 100 raw reads, therefore you can imagine if you divided the raw reads (tumor/normal) it wouldn't make sense because more reads mapped to the normal sample.  Thus, it is critical to normalize.  I take the the raw number of reads for each sample and divide it by the total number of reads mapped to that sample.  This gives me a ratio of what fraction of reads is accounted for by each gene. Here is an example:
+
+Chromosome |  Gene Name |  Tier 1 Normal  |   Tier 1 Tumor
+	   |		| raw read counts |  raw read counts
+-------------------------------------------------------------
+    17     |    TP53	|  150/200 = 0.75 |   50/100 = 0.50
+    12     |    KRAS    |  50/200 = .275  |   50/100 = 0.50
+
+-------------------------------------------------------------
+  Total		 		 200		100
+
+
+5.  Now I can compare the read distribtion between samples to get an estimate of potential CNVs.  I do this by dividing the tumor ratio by the normal ratio as follows:
+
+Chromosome |   Gene Name |  Tier 1 Normal  |   Tier 1 Tumor    |  Tumor/Normal
+	   |		 | raw read counts |  raw read counts  |     ratios	
+---------------------------------------------------------------------------------------
+  17	   |	TP53	 |  150/200 = 0.75 |   50/100 = 0.50   |   0.50/0.75 = 0.667
+  12	   |	KRAS     |  50/200 = .275  |   50/100 = 0.50   |   0.50/0.275 = 1.819
+
+----------------------------------------------------------------------------------------
+  Total		 		 200		100
+
+
+6.  Repeat the same process for all tier 2 genes.
+
+
+7.  After both tiers have been normalized and the ratios calculated you can merge them all in the same file.  The only columns that are needed at this point are chromsome, gene name, and the tumor/normal ratios.  It no longer matters what tier they originate from because the ratios and normalizations have already been calculated.
+
+
+6.  Now take the log2(Tumor/Normal ratios) of all genes.  This will provide a clear indication of a loss or gain.  i.e. imagine you have a ratio of 1.0.  This means that the distribution of reads between tumor vs normal is the same so it will return a ratio of 1.0.  If you take the log2FC of this then it shows show up as 0, which means no change.  On the contray if you had a ratio of 0.50 that means there is half as many reads mapping to the tumor than the normal, so log2(0.50) will be -1.0 indicating a loss.  In summary, negative will indicate losses, and positives will indicate gains.
+
+
+7.  The last step is to visualize the results by chromosome.  On one graph, plot 22 boxplots, 1 boxplot per chromosome.  Plot all the log2(tumor/normal ratio) by chromosome.  Any significant gains or losses should be easily visualized.  I would recommend R for this since it can be very easily done and the nice thing with R is you can easily calculate the p-value between boxplots or the p-value against the null hypothesis which is nothing is different (all log2(FC) is 0) and see if there is any thing statistically significant.  This can also be performed at the gene level.
+
+
+I hope this helps!  If something doesn't make sense or needs more clarification please do not hesitate to ask!!!
+
+Tonya
+
+

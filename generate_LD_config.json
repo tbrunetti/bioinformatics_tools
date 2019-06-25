@@ -1,0 +1,13 @@
+# JSON file for configuration for generate_LD.py
+
+{
+	"plink": {
+		"path": "/home/brunettt/Downloads/plink"
+	},
+	"vcftools": {
+		"path": "/home/brunettt/Downloads/vcftools/vcftools"
+	},
+	"locuszoom":{
+		"path": "/home/brunettt/Downloads/locuszoom/locuszoom"
+	}
+}

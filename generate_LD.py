@@ -136,7 +136,7 @@ def runLZ(epacts, refSnp, ldFile, calcLDflag, build, flank, refGene, specificReg
 		# infer from calcuated LD file
 		if (flank is None) and (specificRegion is None):
 			logger.info("Using LD generated from program and inferring, chromosome, start, and end arguments based on LD calulation inputs at runtime")
-			subprocess.check_call([
+			exitStatus = subprocess.call([
 				config['locuszoom'],
 				'--epacts', epacts,
 				'--build', build,
@@ -148,6 +148,10 @@ def runLZ(epacts, refSnp, ldFile, calcLDflag, build, flank, refGene, specificReg
 				'--prefix', 'chr{}_{}-{}_refSnp{}_{}_{}'.format(args.chrm, args.LDrange.split('-')[0].rstrip(), args.LDrange.split('-')[1].rstrip(), refSnp, build, args.cohort)
 				]
 			)
+			if exitStatus == 0:
+				logger.info('Locuszoom successfully run! Confirmed exit status of {}.'.format(exitStatus))
+			else:
+				logger.critical('Locuszoom exited with a non-zero status ({}) and failed'.format(exitStatus))
 
 		# use specific region specificed at runtime
 		elif (flank is None) and (specificRegion is not None):

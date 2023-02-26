@@ -45,12 +45,15 @@ def geneid_mapping_table(gtf):
                     gene_map[geneId.group(1).split("\"")[1]] = tmp
     
     gtf_mapping = pandas.DataFrame.from_dict(gene_map, orient = 'index')
-    gtf_mapping.to_csv("cVibrio_cholerae_Genbank_GCA_003097695.1_ASM309769v1_geneId_mappings.tsv", index = True, sep = "\t")
+    gtf_mapping.to_csv("output_geneId_mappings.tsv", index = True, sep = "\t")
 
 
-def vibrio_cholerae_strain_A1552():
-    mappingTable = pandas.read_table("/home/tonya/pluto_projects/clients/Pukatzki_lab/vibrio_cholerae_strain_A1552/ncbi-genomes-2023-02-25/genbank/GCA_003097695.1_ASM309769v1/Vibrio_cholerae_Genbank_GCA_003097695.1_ASM309769v1_geneId_mappings_cleaned_final.tsv", sep = "\t", index_col = None)
-    gtf = pandas.read_table("/home/tonya/pluto_projects/clients/Pukatzki_lab/vibrio_cholerae_strain_A1552/ncbi-genomes-2023-02-25/genbank/GCA_003097695.1_ASM309769v1/GCA_003097695.1_ASM309769v1_genomic.gtf", skiprows=3, header=None, index_col=None)
+
+def generate_updated_gtf(gtf):
+
+    mappingTable = pandas.read_table("output_geneId_mappings.tsv", sep = "\t", index_col = None)
+    # skip headers should be changed to skip x number of lines before 1st record is read
+    gtf = pandas.read_table(gtf, skiprows=3, header=None, index_col=None)
 
     mappingTable['find_gene_id'] = "gene_id \"" + mappingTable['gene_id'] + "\""
     mappingTable['find_transcript_id'] = "transcript_id \"" + mappingTable['transcript_id'] + "\""
@@ -64,4 +67,4 @@ def vibrio_cholerae_strain_A1552():
     gtf.replace({8:update_transcript_id_pairings},regex = True, inplace=True)
     gtf.replace({2:{"CDS":"exon"}}, inplace = True)
 
-    gtf.to_csv("/home/tonya/pluto_projects/clients/Pukatzki_lab/vibrio_cholerae_strain_A1552/ncbi-genomes-2023-02-25/genbank/GCA_003097695.1_ASM309769v1/Vibrio_cholerae_Genbank_GCA_003097695.1_ASM309769v1_updated.gtf", index = False, sep = "\t", header=False, quoting=csv.QUOTE_NONE, quotechar="")
+    gtf.to_csv("output_updated.gtf", index = False, sep = "\t", header=False, quoting=csv.QUOTE_NONE, quotechar="")

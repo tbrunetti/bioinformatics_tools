@@ -281,18 +281,31 @@ module_color_of_interest = "yellow"
 # get all the genes in that module
 genes_in_modules %>% filter(`network$colors` == !!module_color_of_interest) %>% rownames() # for tidyverse !! treats the string as a variable substitution
 
-## Find hub genes (genes with high module membership)
+
+## Find hub genes in the modules (genes with high module membership)
 module_membership_strength <- cor(module_eigengenes, t(normalized_data), method = "pearson")
+totalSamples = nrow(t(normalized_data))
 module_membership_strength_pvals <- corPvalueStudent(module_membership_strength, totalSamples)
 
-# calc gene significant and their associated pvals
-gene_sig_corr <- cor(t(normalized_data), binarized_assocs_vs_all$data.0.vs.all, method = "pearson") # this would do it for the data.0.vs.all column of binarized assocations
+write.csv(x = t(module_membership_strength), file = "signed_pearson_correlation_weights_for_each_gene_contributing_to_each_eigengene_module.csv", row.names = T, col.names = T)
+write.csv(x = t(module_membership_strength_pvals), file = "signed_pearson_correlation_pvalues_for_each_gene_contributing_to_each_eigengene_module.csv", row.names = T, col.names = T)
 
-# this calculates the pvalues; note that totalSamples will need to be udpated for the asspocation; 
+# get correlation and pvalues for comparisons associated with genes
+# this calculates the pvalues; note that totalSamples will need to be udpated for the association; 
 # in particular when not using the "all" association as NAs should not count towards the sample count when phenotypes are binarized
-gene_sig_corr_pvals <- corPvalueStudent(gene_sig_corr, totalSamples) 
+for (comp in colnames(binarized_assocs_vs_iso6hr)){
+  print(paste("Running", comp))
+  samples = rownames(binarized_assocs_vs_iso6hr[which(is.na(binarized_assocs_vs_iso6hr[,comp]) == FALSE),])
+  counts = t(normalized_data)[samples,]
+  gene_sig_corr <- cor(counts, binarized_assocs_vs_iso6hr[samples, comp], method = "pearson", use = "complete.obs")
+  colnames(gene_sig_corr) <- "pearson_correlation_coeff"
+  gene_sig_corr_pvals <- corPvalueStudent(gene_sig_corr, length(samples)) 
+  colnames(gene_sig_corr_pvals) <- "pvalue"
+  assocs <- merge(gene_sig_corr, gene_sig_corr_pvals, by = "row.names")
+  colnames(assocs)[1] <- "gene"
+  write.csv(x = assocs, file = paste(comp, "_gene_correlation_pval_matrix.csv", sep = ""), row.names = F, col.names = T)
+}
+
 
 # the top 25 genes that are significantly correlated with severe_vs_all; top 25 hub genes for a module of interest
 gene_sig_corr_pvals %>% as.data.frame() %>% arrange(V1) %>% head(25)
-
-
